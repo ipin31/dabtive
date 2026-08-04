@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}{{ campaign.landing_title or campaign.name }} · Dabtive{% endblock %}
+{% block body_class %}storefront-body{% endblock %}
+{% block body %}
+<main class="storefront-page">
+  <section class="storefront-card">
+    <header class="storefront-header">
+      <a class="wordmark" href="/" aria-label="Dabtive">dabtive<span>.</span></a>
+      <div class="trust-label" aria-label="Akses aman">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.8 6v5.3c0 4.5 2.9 8.6 7.2 9.7 4.3-1.1 7.2-5.2 7.2-9.7V6L12 3Z"/><path d="m8.8 12 2 2 4.4-4.5"/></svg>
+        <span>Aman &amp; Terpercaya</span>
+      </div>
+    </header>
+
+    <div class="storefront-layout">
+      <div class="storefront-media-column">
+        <div class="storefront-media-sticky">
+          <section class="product-gallery" data-carousel aria-label="Preview {{ campaign.name }}">
+            <div class="gallery-stage">
+              {% if campaign.images %}
+                {% for image in campaign.images %}
+                  <figure class="gallery-slide {% if loop.first %}is-active{% endif %}" data-slide>
+                    <img src="/media/campaigns/{{ campaign.id }}/images/{{ image.id }}" alt="{{ image.alt_text or ('Preview ' ~ campaign.name) }}" loading="{% if loop.first %}eager{% else %}lazy{% endif %}">
+                  </figure>
+                {% endfor %}
+              {% else %}
+                <figure class="gallery-slide gallery-placeholder is-active" data-slide>
+                  <div class="placeholder-sheet">
+                    <div class="placeholder-brand">dabtive<span>.</span></div>
+                    <b>{{ campaign.name }}</b>
+                    <span>Preview produk belum diunggah.</span>
+                    <div class="placeholder-grid"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                  </div>
+                </figure>
+              {% endif %}
+
+              {% if campaign.images|length > 1 %}
+                <button class="gallery-arrow gallery-prev" type="button" data-carousel-prev aria-label="Gambar sebelumnya">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button class="gallery-arrow gallery-next" type="button" data-carousel-next aria-label="Gambar berikutnya">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              {% endif %}
+            </div>
+
+            {% if campaign.images|length > 1 %}
+              <div class="gallery-dots" role="tablist" aria-label="Pilih gambar">
+                {% for image in campaign.images %}<button type="button" class="{% if loop.first %}is-active{% endif %}" data-carousel-dot="{{ loop.index0 }}" aria-label="Lihat gambar {{ loop.index }}"></button>{% endfor %}
+              </div>
+            {% endif %}
+          </section>
+
+          <div class="media-note">
+            <span class="pixel-heart" aria-hidden="true">♥</span>
+            <p>Dibuat untuk marketer dan pemilik bisnis yang ingin bekerja lebih praktis dan terukur.</p>
+          </div>
+        </div>
+      </div>
+
+      <section class="storefront-content">
+        <div class="product-badge {{ 'is-paid' if campaign.is_paid else '' }}">{{ campaign.formatted_price if campaign.is_paid else 'GRATIS' }}</div>
+        <h1>{{ campaign.landing_title or campaign.name }}</h1>
+        <p class="storefront-lead">{{ campaign.landing_description }}</p>
+
+        {% if campaign.highlight_options %}
+          <div class="feature-list">
+            {% for item in campaign.highlight_options %}
+              <div class="feature-item">
+                <span class="feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M5 12.5 9.2 17 19 7"/></svg>
+                </span>
+                <span>{{ item }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if campaign.landing_body %}
+          <div class="storefront-description">{{ campaign.landing_body }}</div>
+        {% endif %}
+
+        <section class="inline-request" id="download-form">
+          <div class="form-heading">
+            <div>
+              <small>{{ 'DATA PEMBELI' if campaign.is_paid else 'AKSES GRATIS' }}</small>
+              <h2>{{ 'Dapatkan produk ini.' if campaign.is_paid else 'Kirim file ke Anda.' }}</h2>
+            </div>
+            {% if campaign.is_paid %}<strong>{{ campaign.formatted_price }}</strong>{% endif %}
+          </div>
+
+          {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+          {% if request.query_params.get('submitted') %}<div class="alert success">Permintaan diterima.</div>{% endif %}
+
+          <form method="post" class="compact-product-form" data-request-form>
+            <input type="hidden" name="_csrf" value="{{ csrf }}">
+            <input type="hidden" name="consent" value="on">
+            <label class="hp">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+
+            <label>
+              <span>Nama</span>
+              <div class="input-shell">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+                <input name="name" required maxlength="180" value="{{ values.name if values else '' }}" placeholder="Nama lengkap Anda" autocomplete="name">
+              </div>
+            </label>
+
+            <label>
+              <span>Email</span>
+              <div class="input-shell">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/></svg>
+                <input type="email" name="email" required maxlength="254" value="{{ values.email if values else '' }}" placeholder="nama@bisnis.com" autocomplete="email">
+              </div>
+            </label>
+
+            <label>
+              <span>Jenis Bisnis</span>
+              <div class="input-shell">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6M8 10h.01M12 10h.01M16 10h.01"/></svg>
+                <select name="business_type" required>
+                  <option value="" disabled {% if not values %}selected{% endif %}>Pilih jenis bisnis</option>
+                  {% for item in campaign.business_type_options %}<option value="{{ item }}" {% if values and values.business_type == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+                </select>
+              </div>
+            </label>
+
+            <label>
+              <span>Nomor WhatsApp</span>
+              <div class="input-shell phone-shell">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.6-5.2A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.4 8.2c.4 3 2 4.7 5.2 5.4"/></svg>
+                <span class="country-code">+62</span>
+                <input name="whatsapp" inputmode="tel" required maxlength="18" value="{{ values.whatsapp if values else '' }}" placeholder="81234567890" autocomplete="tel">
+              </div>
+            </label>
+
+            <div class="access-meta">
+              <span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                File Excel berpassword unik
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                Link aktif {{ campaign.expiry_hours }} jam
+              </span>
+            </div>
+
+            <button class="storefront-button" type="submit" data-submit-label="{{ campaign.purchase_button_label if campaign.is_paid else 'Download Gratis' }}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 21h14"/></svg>
+              <span>{{ campaign.purchase_button_label if campaign.is_paid else 'Download Gratis' }}</span>
+            </button>
+          </form>
+
+          <p class="privacy-note">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            Kami menjaga privasi Anda. Data hanya digunakan untuk akses produk ini.
+          </p>
+        </section>
+      </section>
+    </div>
+  </section>
+</main>
+{% endblock %}
